@@ -22,11 +22,11 @@ jobs:
         
     - name: 📦 Create demo project structure
       run: |
-        # Создаем минимальную структуру проекта для демонстрации
+        # Create minimal project structure for demo
         mkdir -p src/GreenPlus.API
         mkdir -p tests/GreenPlus.UnitTests
         
-        # Основной проект API
+        # Main API project
         cat > src/GreenPlus.API/GreenPlus.API.csproj << 'EOF'
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
@@ -40,7 +40,7 @@ jobs:
 </Project>
 EOF
 
-        # Тестовый проект
+        # Test project
         cat > tests/GreenPlus.UnitTests/GreenPlus.UnitTests.csproj << 'EOF'
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
@@ -66,10 +66,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GreenPlus.API", "src\GreenPlus.API\GreenPlus.API.csproj", "{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GreenPlus.API", "src/GreenPlus.API/GreenPlus.API.csproj", "{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GreenPlus.UnitTests", "tests\GreenPlus.UnitTests\GreenPlus.UnitTests.csproj", "{B2C3D4E5-F678-9012-BCDE-F12345678901}"
-EndProject>
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GreenPlus.UnitTests", "tests/GreenPlus.UnitTests/GreenPlus.UnitTests.csproj", "{B2C3D4E5-F678-9012-BCDE-F12345678901}"
+EndProject
 EOF
         
     - name: 📦 Restore dependencies
@@ -82,9 +82,9 @@ EOF
       run: dotnet test --configuration Release --no-build --verbosity normal
 
   # CODE QUALITY CHECK
-  code-quality-check:  # Изменил имя job
+  code-quality-check:
     runs-on: ubuntu-latest
-    needs: build-and-test  # Зависит от build-and-test
+    needs: build-and-test
     
     steps:
     - name: 📥 Checkout code
@@ -96,9 +96,9 @@ EOF
         echo "SonarQube can be added here in the future"
 
   # DOCKER IMAGE BUILD
-  docker-image-build:  # Изменил имя job
+  docker-image-build:
     runs-on: ubuntu-latest
-    needs: code-quality-check  # Зависит от code-quality-check
+    needs: code-quality-check
     if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main'
     
     steps:
@@ -112,9 +112,9 @@ EOF
         echo "Branch: ${{ github.ref }}"
 
   # DEPLOY TO STAGING
-  deploy-staging-environment:  # Изменил имя job
+  deploy-staging-environment:
     runs-on: ubuntu-latest
-    needs: docker-image-build  # Зависит от docker-image-build
+    needs: docker-image-build
     if: github.ref == 'refs/heads/develop'
     
     steps:
@@ -125,9 +125,9 @@ EOF
         echo "URL: https://staging.greenplus.example.com"
 
   # DEPLOY TO PRODUCTION
-  deploy-production-environment:  # Изменил имя job
+  deploy-production-environment:
     runs-on: ubuntu-latest
-    needs: docker-image-build  # Зависит от docker-image-build
+    needs: docker-image-build
     if: github.ref == 'refs/heads/main'
     
     steps:
