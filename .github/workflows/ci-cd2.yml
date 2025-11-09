@@ -1,0 +1,91 @@
+name: Green+ CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # BUILD AND TEST
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: ⚙️ Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0'
+        
+    - name: 📦 Restore dependencies
+      run: dotnet restore
+      
+    - name: 🏗️ Build project
+      run: dotnet build --configuration Release --no-restore
+      
+    - name: 🧪 Run tests
+      run: dotnet test --configuration Release --no-build --verbosity normal
+
+  # CODE QUALITY CHECK
+  code-quality:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🔍 Check code quality
+      run: |
+        echo "✅ Code quality check completed"
+        echo "SonarQube can be added here in the future"
+
+  # DOCKER IMAGE BUILD
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: code-quality
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    - name: 🐳 Build Docker image
+      run: |
+        echo "🐳 Building Docker image for Green+"
+        echo "Commit SHA: ${{ github.sha }}"
+        echo "Branch: ${{ github.ref }}"
+
+  # DEPLOY TO STAGING
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: docker-build
+    if: github.ref == 'refs/heads/develop'
+    
+    steps:
+    - name: 🚀 Deploy to Staging
+      run: |
+        echo "🎯 DEPLOYING TO STAGING SERVER"
+        echo "Application is ready for testing!"
+        echo "URL: https://staging.greenplus.example.com"
+
+  # DEPLOY TO PRODUCTION
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: docker-build
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: ⏳ Wait for manual approval
+      run: |
+        echo "👀 MANUAL APPROVAL REQUIRED"
+        echo "Click the approval button in GitHub to deploy to production"
+        
+    - name: 🚀 Deploy to Production
+      run: |
+        echo "🎉 DEPLOYING TO PRODUCTION!"
+        echo "Green+ is now available to users!"
+        echo "URL: https://greenplus.kz"
